@@ -1,0 +1,62 @@
+{
+  "name": "@postarodiy/auth-toolkit",
+  "version": "0.1.0",
+  "description": "Hardened, framework-agnostic auth primitives: JWT, password hashing, rate limiting, RBAC permission engine",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/postarodiy/auth-toolkit.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    "./jwt": {
+      "types": "./dist/jwt/index.d.ts",
+      "import": "./dist/jwt/index.js",
+      "require": "./dist/jwt/index.cjs"
+    },
+    "./password": {
+      "types": "./dist/password/index.d.ts",
+      "import": "./dist/password/index.js",
+      "require": "./dist/password/index.cjs"
+    },
+    "./ratelimit": {
+      "types": "./dist/ratelimit/index.d.ts",
+      "import": "./dist/ratelimit/index.js",
+      "require": "./dist/ratelimit/index.cjs"
+    },
+    "./rbac": {
+      "types": "./dist/rbac/index.d.ts",
+      "import": "./dist/rbac/index.js",
+      "require": "./dist/rbac/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "tsup": "^8.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.10"
+  }
+}
