@@ -5,6 +5,22 @@ hashing, rate limiting, and an RBAC permission-checking engine. Extracted
 from [presa-management](https://github.com/postarodiy) so future projects
 don't re-implement (and re-audit) the same auth mechanics from scratch.
 
+## Contents
+
+- [What this is not](#what-this-is-not)
+- [Install](#install)
+  - [1. Point npm at the registry](#1-point-npm-at-the-registry)
+  - [2. Local development](#2-local-development)
+  - [3. CI (GitHub Actions)](#3-ci-github-actions)
+- [`/jwt`](#jwt)
+- [`/password`](#password)
+- [`/ratelimit`](#ratelimit)
+- [`/rbac`](#rbac)
+- [Security](#security)
+- [Development](#development)
+- [Publishing](#publishing)
+
+<a id="what-this-is-not"></a>
 ## What this is not
 
 This package has no framework glue (no Next.js middleware, no Express
@@ -17,12 +33,14 @@ This keeps each module's dependencies isolated, so importing `./jwt` in an
 edge/serverless bundle can never accidentally pull in `bcryptjs` or the
 rate limiter's timers.
 
+<a id="install"></a>
 ## Install
 
 GitHub Packages requires authentication to install, even for a public repo
 like this one - the package itself is private. There are two separate setups
 below: local development and CI. They use different auth mechanisms.
 
+<a id="1-point-npm-at-the-registry"></a>
 ### 1. Point npm at the registry
 
 In the consuming project's `.npmrc` (commit this file, it has no secret in it):
@@ -35,6 +53,7 @@ In the consuming project's `.npmrc` (commit this file, it has no secret in it):
 
 The token itself comes from an environment variable, never hardcode it here.
 
+<a id="2-local-development"></a>
 ### 2. Local development
 
 You need a token with `read:packages` scope. Either works:
@@ -51,6 +70,7 @@ npm install @postarodiy/auth-toolkit
 Or create a classic PAT with `read:packages` scope at
 https://github.com/settings/tokens and export that instead.
 
+<a id="3-ci-github-actions"></a>
 ### 3. CI (GitHub Actions)
 
 The default `GITHUB_TOKEN` is scoped to the repo the workflow runs in - it
@@ -78,6 +98,7 @@ steps:
       GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+<a id="jwt"></a>
 ## `@postarodiy/auth-toolkit/jwt`
 
 Edge-safe (no Node-only APIs), built on [`jose`](https://github.com/panva/jose).
@@ -107,6 +128,7 @@ anything other than the default `HS256`.** That allowlist is what stops
 algorithm-confusion attacks - a token signed with one algorithm must not
 verify under a different one.
 
+<a id="password"></a>
 ## `@postarodiy/auth-toolkit/password`
 
 ```ts
@@ -116,6 +138,7 @@ const hash = await hashPassword('plain-text-password'); // bcrypt, cost 10 by de
 const ok = await verifyPassword('plain-text-password', hash);
 ```
 
+<a id="ratelimit"></a>
 ## `@postarodiy/auth-toolkit/ratelimit`
 
 Sliding-window request limiting plus failed-attempt blocking (e.g. for
@@ -146,6 +169,7 @@ loginLimiter.resetFailedAttempts(ip);
 loginLimiter.destroy();
 ```
 
+<a id="rbac"></a>
 ## `@postarodiy/auth-toolkit/rbac`
 
 A generic permission-checking engine. It never talks to a database - you
@@ -182,6 +206,7 @@ await routes.checkAccess({ role: 'viewer' }, '/posts/123'); // { allowed: true }
 Role names, permission names, and route rules stay in your app - they're
 business config that changes with the product, not generic code.
 
+<a id="security"></a>
 ## Security
 
 - JWT verification always requires an explicit algorithm allowlist
@@ -197,6 +222,7 @@ business config that changes with the product, not generic code.
 Found a security issue? Open a private security advisory on this repo
 rather than a public issue.
 
+<a id="development"></a>
 ## Development
 
 ```
@@ -206,6 +232,7 @@ npm test        # vitest, with coverage
 npm run build   # tsup: ESM + CJS + .d.ts per subpath
 ```
 
+<a id="publishing"></a>
 ## Publishing
 
 Bump `version` in `package.json`, merge to `main`, then create a GitHub
