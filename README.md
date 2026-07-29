@@ -19,17 +19,63 @@ rate limiter's timers.
 
 ## Install
 
-Requires a GitHub Packages auth token (`read:packages` scope) configured
-for the `@postarodiy` registry scope, since GitHub Packages requires
-authentication for install regardless of repo visibility.
+GitHub Packages requires authentication to install, even for a public repo
+like this one - the package itself is private. There are two separate setups
+below: local development and CI. They use different auth mechanisms.
+
+### 1. Point npm at the registry
+
+In the consuming project's `.npmrc` (commit this file, it has no secret in it):
 
 ```
 # .npmrc
 @postarodiy:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}
 ```
 
+The token itself comes from an environment variable, never hardcode it here.
+
+### 2. Local development
+
+You need a token with `read:packages` scope. Either works:
+
 ```
+# Add the scope to your existing gh CLI login (opens a device-code browser flow)
+gh auth refresh -h github.com -s read:packages
+
+# Then export it for npm to pick up (add to your shell profile if you install often)
+export GITHUB_PACKAGES_TOKEN="$(gh auth token)"
 npm install @postarodiy/auth-toolkit
+```
+
+Or create a classic PAT with `read:packages` scope at
+https://github.com/settings/tokens and export that instead.
+
+### 3. CI (GitHub Actions)
+
+The default `GITHUB_TOKEN` is scoped to the repo the workflow runs in - it
+cannot read a package published from a *different* repo, even in the same
+org, without an explicit grant. Rather than storing a PAT as a secret,
+grant the consuming repo read access to this package directly:
+
+1. Open this package's settings: https://github.com/orgs/postarodiy/packages/npm/package/auth-toolkit/settings
+2. Under **Manage Actions access**, click **Add repository**, pick the
+   consuming repo, set role to **Read**
+
+Then the workflow needs no secret at all, just:
+
+```yaml
+permissions:
+  packages: read
+
+steps:
+  - uses: actions/checkout@v4
+  - uses: actions/setup-node@v4
+    with:
+      node-version: "22"
+  - run: npm ci
+    env:
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## `@postarodiy/auth-toolkit/jwt`

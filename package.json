@@ -1,6 +1,6 @@
 {
   "name": "@postarodiy/auth-toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hardened, framework-agnostic auth primitives: JWT, password hashing, rate limiting, RBAC permission engine",
   "license": "UNLICENSED",
   "type": "module",

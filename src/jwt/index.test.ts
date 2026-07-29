@@ -7,7 +7,27 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+// A declared interface, not an inline object literal type. TypeScript only
+// auto-satisfies a `Record<string, unknown>` generic constraint for fresh
+// literal types, not named interfaces - most real callers pass one of these,
+// so signJwt/verifyJwt must accept it too (regression test for a real
+// integration failure hit when wiring this package into a consuming app).
+interface AppJwtPayload {
+  userId: number;
+  role: string;
+  mustChangePassword?: boolean;
+}
+
 describe('signJwt / verifyJwt', () => {
+  test('accepts a named interface payload, not just inline object literals', async () => {
+    const token = await signJwt<AppJwtPayload>({ userId: 1, role: 'admin' }, { secret });
+    const payload = await verifyJwt<AppJwtPayload>(token, { secret });
+
+    expect(payload).not.toBeNull();
+    expect(payload?.userId).toBe(1);
+    expect(payload?.role).toBe('admin');
+  });
+
   test('round trips a generic payload', async () => {
     const token = await signJwt({ userId: 1, role: 'admin' }, { secret });
     const payload = await verifyJwt<{ userId: number; role: string }>(token, { secret });

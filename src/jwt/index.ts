@@ -27,7 +27,7 @@ function encodeSecret(secret: string): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function signJwt<TPayload extends Record<string, unknown>>(
+export async function signJwt<TPayload extends object>(
   payload: TPayload,
   options: JwtSignOptions
 ): Promise<string> {
@@ -46,7 +46,7 @@ export async function signJwt<TPayload extends Record<string, unknown>>(
 }
 
 /** Never throws; returns null for any invalid, expired, or tampered token. */
-export async function verifyJwt<TPayload extends Record<string, unknown> = Record<string, unknown>>(
+export async function verifyJwt<TPayload extends object = Record<string, unknown>>(
   token: string,
   options: JwtVerifyOptions
 ): Promise<(TPayload & { iat: number; exp: number }) | null> {
