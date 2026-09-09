@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "jose": "^6.2.3"
+    "jose": "^6.2.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
